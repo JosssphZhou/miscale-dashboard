@@ -1,144 +1,116 @@
 # Mi Scale Dashboard
 
-A self-hosted, local-first dashboard for the **Xiaomi Mi Body Composition Scale 2**. A small
-server near the scale listens for its Bluetooth Low Energy broadcasts. Each weigh-in shows up
-live in your browser, gets matched to the right person, and is saved with its body
-composition. No Xiaomi account, no Zepp Life app, no cloud.
+小米体脂秤 2 的本地看板。放在秤附近的电脑接收蓝牙广播，网页实时显示体重，自动匹配用户，并保存身体成分和历史记录。无需小米账号、Zepp Life 或云服务。
 
-[Português (Brasil)](README.pt-BR.md)
+这是 [BrOrlandi/miscale-dashboard](https://github.com/BrOrlandi/miscale-dashboard) 的中文 fork。网页、通知和 AI 分析默认使用简体中文，设置中保留英语、葡萄牙语与跟随浏览器的选项。
 
-![A weigh-in from start to finish](docs/screenshots/weigh-in.gif)
+[English](README.en.md) | [Português (Brasil)](README.pt-BR.md)
 
-| Dashboard (light) | Dashboard (dark) |
-| --- | --- |
-| ![Dashboard, light theme](docs/screenshots/dashboard-light.png) | ![Dashboard, dark theme](docs/screenshots/dashboard-dark.png) |
+## 先打开中文页面
 
-| Weigh-in: stable weight | Weigh-in: body composition | Phone |
-| --- | --- | --- |
-| ![Weigh-in screen while the scale measures](docs/screenshots/weighin-stable.png) | ![Weigh-in screen with the result](docs/screenshots/weighin-result.png) | ![Result on a phone](docs/screenshots/mobile-result.png) |
-
-All data in the screenshots is made up (`scripts/seed_demo.py`), and Alex's photo is
-AI-generated, not a real person ([docs/demo](docs/demo/README.md)).
-
-## Live demo
-
-Try it at **<https://brorlandi.github.io/miscale-dashboard/>**. It is the same dashboard
-running entirely in your browser, with made-up data for two fictional people. It needs no
-scale, no Bluetooth and no server. Press **▶ Play demo** to watch a weigh-in from start to
-finish; the tour ends with Alex's weekly analysis being written in its card. That text is
-simulated (fixed sentences filled in with the demo's numbers), since the demo has no AI behind
-it. Changes you make stay in the page and are gone when you reload it.
-
-## Promo video
-
-[![Promo video: a weigh-in, the dashboard, the AI weekly analysis and phone notifications](docs/video/poster.jpg)](https://youtu.be/ajvoJN0Qh_4)
-
-**[▶ Watch the promo video on YouTube](https://youtu.be/ajvoJN0Qh_4)**: 40 seconds, 1920x1080, with music.
-It is built with code, like the rest of the repository: the 3D scenes, the recordings of the
-live demo and the soundtrack are all generated from [video/](video/README.md).
-
-## Features
-
-- **Live weigh-in screen.** When someone steps on the scale, every open browser shows the
-  weight as it settles, then locks it in. A few seconds later it shows the bioimpedance
-  results (body fat, muscle, water, protein, bone mass, visceral fat, BMR). The screen then
-  closes and the dashboard updates with animation.
-- **Multiple profiles.** Each weigh-in goes to the person whose last weight is closest,
-  within a tolerance you set. Anything that doesn't match is saved as "unknown", and you can
-  assign it later from the history. Profiles can have photos.
-- **Body composition** from impedance, using the open formulas from openScale. Arrows show
-  the change since the previous weigh-in, 7 days ago or 30 days ago, colored green or red by
-  whether that change is good or bad.
-- **Chart and history:** weight with a 7-day moving average and body fat, for 30 days, 90
-  days, a year or all time.
-- **Notifications (optional)** for every weigh-in, through a generic JSON webhook or your
-  own Telegram bot.
-- **AI weekly analysis (optional).** Once a week an AI model of your choice (OpenAI,
-  OpenRouter, or a local Ollama) reads the week's numbers and writes a short summary: what
-  improved, what needs attention, and what to try next week. It is typed into the dashboard
-  live as the model writes it, and goes out with the notifications.
-- English and Portuguese (Brazil); kg or lb; light, dark or automatic theme.
-- **Installable on your phone** as an app (PWA), with offline shell.
-- One container, SQLite, no external services. Chart.js is bundled, so it works offline.
-
-## What you need
-
-### 1. The scale
-
-**Xiaomi Mi Body Composition Scale 2**, model **XMTZC05HM**. It advertises as `MIBFS`.
-
-Where to buy it in Brazil: [Amazon](https://amzn.to/3TPrsph) or
-[Mercado Livre](https://meli.la/2XoPtSb). These are affiliate links: as an Amazon Associate
-and a Mercado Livre affiliate, I earn from qualifying purchases, at no extra cost to you.
-
-The older **Mi Smart Scale 2 (XMTZC04HM)** and other models use a different packet format
-and aren't supported yet. If you have one, a pull request is welcome; see
-[Contributing](#contributing).
-
-### 2. A computer with Bluetooth Low Energy, near the scale
-
-This is a hard requirement. The server **must have a BLE-capable Bluetooth adapter** and be
-within Bluetooth range of the scale, usually the same room or the one next to it. The scale
-doesn't pair or connect to anything: it only broadcasts while someone is standing on it, and
-the server has to hear those broadcasts directly.
-
-Hardware known to work, or that should work:
-
-- Raspberry Pi 3, 4, 5 or Zero 2 W (built-in Bluetooth)
-- Mini PCs and NUCs with an Intel Wi-Fi + Bluetooth card (AX200, AX201, AX210...). It was
-  developed on an Intel N100 with an AX201.
-- Any Linux machine with a USB Bluetooth 4.0+ dongle
-
-The supported setup is **Linux with BlueZ** (the standard Bluetooth stack on Ubuntu, Debian
-and Raspberry Pi OS). The Docker container talks to the host's BlueZ over D-Bus. The scanner
-is built on [bleak](https://github.com/hbldh/bleak), so macOS and Windows may work when you
-run it without Docker, but they aren't tested.
-
-Check that the host can see Bluetooth LE devices:
+如果当前电脑已安装 Python 3.11 或更新版本：
 
 ```bash
-bluetoothctl show            # should list a controller with "Powered: yes"
-sudo bluetoothctl scan le    # step on the scale: a device named MIBFS should appear
+git clone https://github.com/JosssphZhou/miscale-dashboard.git
+cd miscale-dashboard
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+printf '\nMISCALE_DB=./data/miscale.db\n' >> .env
+python -m uvicorn app.main:app --env-file .env --host 127.0.0.1 --port 8800
 ```
 
-## Install with Docker (recommended)
+上述命令已设置本地数据库路径。原版默认路径 `/data/miscale.db` 用于容器，直接运行时需改为可写的本地路径。
+
+打开 <http://localhost:8800>。也可运行 `scripts/start-local.sh` 启动本地服务，脚本默认端口为 18800，且保持蓝牙关闭。初次启动时没有称重数据，页面显示“等待启用蓝牙”。默认配置关闭蓝牙扫描、通知和 AI 分析，可先查看中文页面。
+
+### 到这里需要你操作
+
+1. 查看秤背面的型号，确认是 **XMTZC05HM（小米体脂秤 2）**。
+2. 将运行服务的电脑与秤放在同一房间或相邻房间。电脑须支持低功耗蓝牙。
+3. 点击“添加用户”，填写姓名、身高、出生日期、性别和大致体重。
+4. 停止当前服务，再运行 `scripts/start-local.sh --connect`。若使用 Docker，则将 `.env` 中的 `MISCALE_SCANNER` 改为 `on` 并重启容器。
+5. 如果系统请求蓝牙权限，请允许运行服务的终端使用蓝牙。
+6. 赤脚站上秤，体重稳定后再等待约 3 至 5 秒，直到身体成分测量完成。
+
+体脂秤发送广播，不需要在系统蓝牙设置里配对。上游支持 Linux + BlueZ；macOS 和 Windows 可尝试直接运行 Python，真实接收仍需实机验证。macOS 的 Docker 容器无法使用本方案的 Linux BlueZ 接口。
+
+**XMTZC04HM（小米体重秤 2）和其他型号暂不支持。** 型号不同请先确认兼容性。
+
+## 功能
+
+- 实时称重：所有打开的网页同步显示体重稳定过程、阻抗和身体成分，测量结束后更新看板。
+- 多人档案：按最近一次体重匹配用户。超过允许偏差时标为“未识别用户”，可在历史记录中指定用户。支持头像照片。
+- 身体成分：使用 openScale 的公开公式估算体脂率、脂肪量、肌肉量、水分、蛋白质、骨量、内脏脂肪和基础代谢。
+- 变化对比：与上一次、7 天前或 30 天前的记录对比，用箭头标示变化。
+- 趋势图与历史：体重、7 天移动平均和体脂率，可查看 30 天、90 天、1 年或全部记录。
+- 可选通知：每次称重后发送 JSON webhook 或 Telegram 消息。
+- 可选 AI 分析：每周总结趋势，支持 OpenAI 兼容服务或本地 Ollama，并在网页逐步显示生成文字。
+- 简体中文、英语和葡萄牙语；千克或磅；浅色、深色或跟随系统。
+- 手机安装：支持添加到主屏幕，离线时可打开应用页面。
+- 单个 Python 服务，SQLite 存储。Chart.js 随项目提供，图表无需联网加载。
+
+## 查看演示
+
+演示使用两个虚构用户的数据，不需要体脂秤、蓝牙或后端服务。演示分析由固定语句生成，没有调用 AI。刷新页面会清除所有修改。
 
 ```bash
-git clone https://github.com/BrOrlandi/miscale-dashboard.git
+python scripts/build_demo.py
+python -m http.server -d site 8000
+```
+
+打开 <http://localhost:8000>，点击“播放演示”，查看从称重到身体成分和每周分析的过程。
+
+[上游英语在线演示](https://brorlandi.github.io/miscale-dashboard/) 和 [上游宣传视频](https://youtu.be/ajvoJN0Qh_4) 保留原文。视频工程见 [video/README.md](video/README.md)。旧截图和视频是上游素材；本 fork 的中文页面截图见下方。所有演示数据均为虚构，Alex 的头像由 AI 生成，见 [演示素材说明](docs/demo/README.md)。
+
+## 中文界面
+
+![中文看板](docs/screenshots/dashboard-zh-CN.png)
+
+![中文称重结果](docs/screenshots/weighin-zh-CN.png)
+
+## 在 Linux 上连接体脂秤
+
+以下设备可作为运行服务的电脑：
+
+- Raspberry Pi 3、4、5 或 Zero 2 W，使用内置蓝牙。
+- 带 Intel AX200、AX201、AX210 等无线网卡的迷你电脑或 NUC。上游开发设备为 Intel N100 + AX201。
+- 配备 USB 蓝牙 4.0 或更新适配器的 Linux 电脑。
+
+Linux 使用 BlueZ。先确认蓝牙适配器可以接收广播：
+
+```bash
+bluetoothctl show         # 应看到控制器，且 Powered 为 yes
+sudo bluetoothctl scan le # 站上秤后，应出现名为 MIBFS 的设备
+```
+
+### 使用 Docker
+
+```bash
+git clone https://github.com/JosssphZhou/miscale-dashboard.git
 cd miscale-dashboard
-cp .env.example .env          # optional settings, see below
+cp .env.example .env
+# 完成型号确认后，将 .env 中的 MISCALE_SCANNER 改为 on。
 docker compose up -d --build
 ```
 
-Open `http://<server-ip>:8800`. Create a profile with your height, birth date and sex, then
-step on the scale barefoot and wait for it to finish.
+打开 `http://<服务器地址>:8800`，创建用户档案，然后赤脚称重。
 
-The compose file does three things the scanner needs:
+容器挂载 `./data` 保存数据库和照片，并通过 `/run/dbus` 访问主机的 BlueZ。`apparmor=unconfined` 用于避免 Docker 默认 AppArmor 规则阻止 D-Bus。无需 `privileged` 或主机网络模式；无 AppArmor 的系统可保留该项。
 
-```yaml
-volumes:
-  - ./data:/data                  # database and profile photos
-  - /run/dbus:/run/dbus:ro        # talk to the host's BlueZ
-security_opt:
-  - apparmor=unconfined           # Docker's AppArmor profile blocks D-Bus
+### 直接运行 Python
+
+使用前面的本地安装步骤，并配置 `.env`：
+
+```dotenv
+MISCALE_DB=./data/miscale.db
+MISCALE_SCANNER=on
 ```
 
-It doesn't need `privileged` or `network_mode: host`. On hosts without AppArmor (most
-Raspberry Pi OS installs), the `security_opt` line is harmless.
+要供家庭网络中的其他设备访问，使用 `--host 0.0.0.0`。服务没有登录功能，仅在可信网络中使用。
 
-## Install without Docker
-
-Python 3.11+ on a Linux host with BlueZ:
-
-```bash
-git clone https://github.com/BrOrlandi/miscale-dashboard.git
-cd miscale-dashboard
-python3 -m venv .venv && . .venv/bin/activate
-pip install -r requirements.txt
-MISCALE_DB=./data/miscale.db uvicorn app.main:app --host 0.0.0.0 --port 8800
-```
-
-To run it as a service, use a systemd unit like this one:
+需要长期运行时，可在 Linux 创建 systemd 服务：
 
 ```ini
 # /etc/systemd/system/miscale-dashboard.service
@@ -148,245 +120,166 @@ After=bluetooth.target network-online.target
 
 [Service]
 WorkingDirectory=/opt/miscale-dashboard
-Environment=MISCALE_DB=/opt/miscale-dashboard/data/miscale.db
-ExecStart=/opt/miscale-dashboard/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8800
+ExecStart=/opt/miscale-dashboard/.venv/bin/uvicorn app.main:app --env-file /opt/miscale-dashboard/.env --host 0.0.0.0 --port 8800
 Restart=always
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-## Install it on your phone
+此示例的 `.env` 中将数据库设置为 `/opt/miscale-dashboard/data/miscale.db`。
 
-The dashboard is a Progressive Web App: it installs like an app, opens full screen with its
-own icon, and the shell loads even when the server is unreachable.
+## 安装到手机
 
-- **Android / Chrome / Edge:** an "Install app" button appears in the header (or use the
-  browser menu › *Install app*).
-- **iPhone / iPad (Safari):** a hint shows up once: tap Share, then *Add to Home Screen*.
+Android 的 Chrome 或 Edge 可通过页面中的“安装应用”按钮或浏览器菜单安装。iPhone 和 iPad 在 Safari 中选择“分享”，再选择“添加到主屏幕”。
 
-Browsers only allow installing (and run the service worker) over **HTTPS**, so serve the
-dashboard through a reverse proxy with a certificate (Caddy, Traefik, nginx), or with
-`tailscale serve`. On plain `http://<ip>:8800` it works normally in the browser, and iOS can
-still add it to the home screen, but Android won't offer to install it.
+应用安装与离线缓存通常需要 HTTPS。可使用带证书的 Caddy、Traefik、nginx，或 `tailscale serve`。普通 `http://<服务器地址>:8800` 可在浏览器中使用；iOS 仍可添加到主屏幕，Android 不会提供安装按钮。
 
-## Configuration
+## 配置参考
 
-Every setting is optional and set through environment variables (`.env` with Docker). The
-unit, the language and the tolerance for recognizing people are changed in the web UI.
+所有设置均为可选。Docker 和带 `--env-file .env` 的 Python 服务从 `.env` 读取配置。网页中可更改语言、体重单位和识别用户的允许偏差。
 
-| Variable | Default | What it does |
+| 变量 | 默认值 | 用途 |
 | --- | --- | --- |
-| `TZ` | `UTC` | Timezone used for measurement times |
-| `MISCALE_SCALE_MAC` | empty | Only accept this scale. Empty accepts any XMTZC05HM in range (useful if a neighbor has one too) |
-| `MISCALE_DB` | `/data/miscale.db` | SQLite database path; photos go in `photos/` next to it |
-| `MISCALE_LANG` | `en` | Language of notifications: `en` or `pt-BR` |
-| `MISCALE_PUBLIC_URL` | empty | Dashboard link appended to notifications |
-| `MISCALE_WEBHOOK_URL` | empty | POST a JSON message for every weigh-in |
-| `MISCALE_TELEGRAM_TOKEN` | empty | Bot token from [@BotFather](https://t.me/BotFather) |
-| `MISCALE_TELEGRAM_CHAT_ID` | empty | Chat that receives the messages |
-| `MISCALE_NOTIFY_WAIT` | `25` | Seconds to wait for the impedance before notifying |
-| `MISCALE_AI_API_KEY` | empty | Turns on the [AI weekly analysis](#ai-weekly-analysis-optional) |
-| `MISCALE_AI_BASE_URL` | `https://api.openai.com/v1` | Any OpenAI-compatible API |
-| `MISCALE_AI_MODEL` | `gpt-5.4-mini` | Model, or a comma-separated list tried in order |
-| `MISCALE_AI_ENABLED` | empty | `true` turns the analysis on without a key (local Ollama) |
-| `MISCALE_AI_WEEKDAY` / `MISCALE_AI_HOUR` | `5` / `9` | When the weekly analysis runs (0 = Monday; default Saturday 9:00) |
-| `MISCALE_AI_LANG` | `MISCALE_LANG` | Language of the analysis: `en` or `pt-BR` |
-| `MISCALE_SCANNER` | `on` | `off` disables Bluetooth (development and demos) |
-| `MISCALE_LOG_LEVEL` | `INFO` | Python log level |
+| `TZ` | `.env.example` 为 `Asia/Taipei` | 测量时间和分析计划的时区 |
+| `MISCALE_SCALE_MAC` | 空 | 仅接收指定体脂秤。空值接收范围内所有支持的体脂秤 |
+| `MISCALE_DB` | `/data/miscale.db` | SQLite 路径，照片保存在同级 `photos/` 目录 |
+| `MISCALE_LANG` | `zh-CN` | 通知语言，可选 `zh-CN`、`en`、`pt-BR` |
+| `MISCALE_PUBLIC_URL` | 空 | 通知附带的看板链接 |
+| `MISCALE_WEBHOOK_URL` | 空 | 称重后向该地址发送 JSON |
+| `MISCALE_TELEGRAM_TOKEN` | 空 | 从 [@BotFather](https://t.me/BotFather) 获取的机器人令牌 |
+| `MISCALE_TELEGRAM_CHAT_ID` | 空 | 接收通知的聊天 ID |
+| `MISCALE_NOTIFY_WAIT` | `25` | 发送通知前等待阻抗的秒数 |
+| `MISCALE_AI_API_KEY` | 空 | AI 服务密钥；空值默认关闭分析 |
+| `MISCALE_AI_BASE_URL` | `https://api.openai.com/v1` | OpenAI 兼容接口地址 |
+| `MISCALE_AI_MODEL` | `gpt-5.4-mini` | 模型或以逗号分隔的候选模型，依次尝试 |
+| `MISCALE_AI_ENABLED` | 空 | `true` 可启用无需密钥的本地服务 |
+| `MISCALE_AI_WEEKDAY` / `MISCALE_AI_HOUR` | `5` / `9` | 默认每周六 09:00，0 为周一 |
+| `MISCALE_AI_LANG` | 跟随 `MISCALE_LANG` | 分析语言，可选 `zh-CN`、`en`、`pt-BR` |
+| `MISCALE_SCANNER` | 程序默认 `on`；示例配置为 `off` | 是否接收蓝牙广播。首次安装完成连接准备后再启用 |
+| `MISCALE_LOG_LEVEL` | `INFO` | Python 日志级别 |
 
-### Finding your scale's address
+网页语言保存在当前浏览器中；通知和真实 AI 分析使用服务器环境变量，切换网页语言不会更改已保存的分析文本。
 
-Step on the scale and open `http://<server>:8800/api/debug/devices`. Every device the
-adapter has seen is listed; the scale is the one named `MIBFS` with service data
-`0000181b-...`. Put its address in `MISCALE_SCALE_MAC`. `/api/debug/packets` shows the last
-raw packets received from it.
+### 查找体脂秤地址
 
-### Notifications
+启用蓝牙后站上秤，打开 `http://<服务器地址>:8800/api/debug/devices`。查看名称为 `MIBFS`、服务数据以 `0000181b-` 开头的设备，将地址填入 `MISCALE_SCALE_MAC` 后重启。`/api/debug/packets` 显示最近收到的原始数据包。
 
-When a weigh-in finishes, the server waits up to `MISCALE_NOTIFY_WAIT` seconds for the
-impedance, then sends a message like this. Weigh-ins that match no profile (an object on the
-scale, a pet) are not notified; they only show up in the history.
+### 通知
 
-```
-⚖️ Alex · 81.40 kg
-−0.03 kg since Oct 11 07:15 · 7-day average 81.7 kg
-Body fat 25.0% (20.4 kg) · Muscle 57.9 kg
-Water 51.4% · Protein 19.7% · Bone 3.1 kg
-BMI 25.7 · Visceral fat 15 · BMR 1,649 kcal
-Impedance 478 Ω
+测量结束后，服务器最多等待 `MISCALE_NOTIFY_WAIT` 秒获取阻抗，再发送通知。未匹配到用户的称重不会发送通知，仍保留在历史记录中。中文消息示例：
+
+```text
+⚖️ 小明：81.40 kg
+较 10月11日 07:15 变化 −0.03 kg，7 天平均 81.7 kg
+体脂率 25.0%（脂肪量 20.4 kg），肌肉量 57.9 kg
+水分 51.4%，蛋白质 19.7%，骨量 3.1 kg
+身体质量指数 25.7，内脏脂肪 15，基础代谢 1,649 kcal
+阻抗 478 Ω
 ```
 
-The webhook receives the same text plus the raw data, so you can use it from n8n, Node-RED,
-Home Assistant (`/api/webhook/<id>`) or anything else that accepts JSON:
+webhook 同时提供消息与原始数据，适用于 n8n、Node-RED、Home Assistant 等接收 JSON 的服务。字段保持上游格式：
 
 ```json
 {
   "event": "measurement",
-  "text": "⚖️ Alex · 81.40 kg\n...",
-  "message": "⚖️ Alex · 81.40 kg\n...",
-  "profile": { "id": 1, "name": "Alex" },
-  "measurement": { "id": 42, "measured_at": "2026-10-12T07:15:03", "weight_kg": 81.4, "impedance": 478, "metrics": { "body_fat": 25.0, "...": "..." } }
+  "text": "中文称重通知",
+  "message": "中文称重通知",
+  "profile": {"id": 1, "name": "小明"},
+  "measurement": {"id": 42, "weight_kg": 81.4, "impedance": 478, "metrics": {"body_fat": 25.0}}
 }
 ```
 
-## AI weekly analysis (optional)
+## AI 每周分析（可选）
 
-![The weekly analysis being typed in as the model writes it](docs/screenshots/analysis.gif)
+默认关闭。启用后每周生成一次分析，分为“有所改善”“需要留意”和“下周建议”。点击“立即生成”可分析最近 7 天。文字实时显示在所有打开的网页中，并保存到数据库；设置通知后还会发送分析结果。
 
-Once a week, the server sends each person's numbers to a language model and shows its
-answer in a "Weekly analysis" card: a short summary of the week, then *What improved*,
-*What needs attention* and *For next week*. The model is told to look at averages and trends
-rather than single readings, to say when there are too few weigh-ins, and to stay away from
-medical advice. The text appears in every open browser as the model writes it, is saved in
-the database, and is sent through the [notifications](#notifications) when they are set up.
-"Generate now" writes one on demand for the last 7 days.
+模型提示要求关注多周平均值和趋势，说明数据不足，避免医学诊断。默认用简体中文，可以设置 `MISCALE_AI_LANG`。
 
-It is off by default. Without a key the card only explains how to turn it on, and nothing
-leaves your network. It works with any OpenAI-compatible chat API:
+```dotenv
+# 外部 OpenAI 兼容服务：填写自己的密钥与模型。
+MISCALE_AI_API_KEY=your-api-key
+MISCALE_AI_BASE_URL=https://api.openai.com/v1
+MISCALE_AI_MODEL=your-model
 
-```bash
-# OpenAI
-MISCALE_AI_API_KEY=sk-...
-# MISCALE_AI_MODEL=gpt-5.4-mini           (the default)
-
-# OpenRouter: any model it offers; a comma-separated list falls back in order
-MISCALE_AI_API_KEY=sk-or-...
-MISCALE_AI_BASE_URL=https://openrouter.ai/api/v1
-MISCALE_AI_MODEL=openai/gpt-5.4-mini,openai/gpt-5.4-nano
-
-# Ollama on your own machine: no key and nothing leaves your network
-MISCALE_AI_ENABLED=true
-MISCALE_AI_BASE_URL=http://192.168.1.10:11434/v1
-MISCALE_AI_MODEL=llama3.2
+# 本地 Ollama：无需密钥。
+# MISCALE_AI_ENABLED=true
+# MISCALE_AI_BASE_URL=http://127.0.0.1:11434/v1
+# MISCALE_AI_MODEL=your-local-model
 ```
 
-LM Studio, llama.cpp's server, vLLM and the like work the same way with their own base URL.
-The analysis runs every Saturday at 9:00 for everyone who weighed in that week (change it
-with `MISCALE_AI_WEEKDAY` and `MISCALE_AI_HOUR`; if the server is off then, it catches up
-within two days). It is written in `MISCALE_AI_LANG`, which defaults to `MISCALE_LANG`.
+OpenRouter、LM Studio、llama.cpp 和 vLLM 等服务也可使用各自的兼容地址。容器中的 `127.0.0.1` 指容器本身；本地模型在另一台主机运行时填写容器可访问的地址。
 
-**Cost.** One analysis is a single request of a few thousand tokens, so with a small model
-like `gpt-5.4-mini` a year of weekly analyses for two people costs about a dollar. A local
-model costs nothing.
+默认每周六 09:00 为本周有称重记录的用户生成分析。错过计划后，可在两天内补生成。外部服务按自身价格收费；本地模型无需支付接口费用。
 
-**Privacy.** The provider receives the week's weigh-ins and body composition, the weekly
-averages of the last 8 weeks, and the person's first name, age, height and sex. Nothing else
-is sent. If you'd rather keep everything at home, use Ollama or another local server.
+启用外部 AI 后，服务商会收到本周称重与身体成分、过去 8 周的周平均，以及用户姓名、年龄、身高和性别。要将数据留在家中，可使用本地模型。webhook 的分析通知使用 `"event": "analysis"`，并包含 `analysis` 对象。
 
-The webhook gets the analysis with `"event": "analysis"`:
+## 日常使用
 
-```json
-{
-  "event": "analysis",
-  "text": "🧠 Weekly analysis · Alex (Oct 4 – Oct 10)\n\nYour weight ...",
-  "message": "🧠 Weekly analysis · Alex (Oct 4 – Oct 10)\n\nYour weight ...",
-  "profile": { "id": 1, "name": "Alex" },
-  "analysis": { "id": 7, "week_start": "2026-10-04", "week_end": "2026-10-10", "kind": "weekly", "model": "gpt-5.4-mini", "text": "..." }
-}
-```
+- 首次称重用大致体重识别用户，后续使用最近一次体重。
+- 赤脚站上秤并等待阻抗测量完成。穿袜子或鞋时通常只能测体重。
+- 用户匹配错误时，在历史记录中改选用户，身体成分会重新计算。
+- 修改档案的身高或出生日期后，该用户的全部历史身体成分会重新计算。
+- 删除用户档案会保留测量记录，归为“未识别用户”。删除单条测量记录则移除该条记录。
+- 生物阻抗是估算，会随饮水、进食和测量时间变化。尽量每天同一时间测量，以趋势作为参考。此产品不是医疗设备。
 
-## Using it
+## 网络与数据
 
-- **Profiles:** "+ Person" creates one. Height, birth date and sex are needed for body
-  composition. The approximate weight is only used to recognize the person's first weigh-in;
-  after that, their last weight is used.
-- **Weighing:** step on barefoot and stay on until the impedance is measured, about 3 to 5
-  seconds after the weight stabilizes. With socks or shoes on you only get the weight.
-- **Wrong person?** Change it in the history; the body composition is recalculated for the
-  new profile. Editing a profile's height or birth date recalculates their whole history.
-- **Accuracy:** bioimpedance is an estimate that shifts with hydration, meals and time of
-  day. Weigh yourself at the same time every day and watch the trend, not single readings.
-  This is not a medical device.
+看板没有登录功能。默认本地启动只监听当前电脑；供家庭网络使用时仅开放给可信设备。对外开放前，通过带认证的反向代理或 Tailscale 等方式限制访问。代理需要转发 `/ws` WebSocket。
 
-## Security
+数据库与照片位于 `MISCALE_DB` 所在目录。备份时先停止服务，再复制整个数据目录。升级前备份，原始数据请自行保留。
 
-The dashboard has **no login**. Run it on your home network only, or put it behind a reverse
-proxy with authentication (Traefik, Caddy or nginx with basic auth, Authelia, Tailscale...)
-before exposing it anywhere. The proxy must forward WebSockets (`/ws`).
+## 工作原理
 
-## How it works
+体脂秤通过蓝牙身体成分服务 `0x181B` 广播 13 字节数据：
 
-The scale needs no connection. While someone stands on it, it advertises the Bluetooth
-**Body Composition service (`0x181B`)** with 13 bytes of service data:
-
-| Bytes | Meaning |
+| 字节 | 含义 |
 | --- | --- |
-| 0 | Control: bit 0 = pounds |
-| 1 | Control: bit 1 = has impedance, bit 5 = stabilized, bit 6 = invalid date, bit 7 = person stepped off |
-| 2–3 | Year (little endian) |
-| 4–8 | Month, day, hour, minute, second |
-| 9–10 | Impedance in ohms (`0xfffe` while still measuring) |
-| 11–12 | Weight (little endian; ÷200 for kg, ÷100 for lb) |
+| 0 | 控制位：第 0 位表示磅 |
+| 1 | 第 1 位表示阻抗、第 5 位表示稳定、第 6 位表示日期无效、第 7 位表示已离秤 |
+| 2–3 | 年份，小端序 |
+| 4–8 | 月、日、时、分、秒 |
+| 9–10 | 阻抗，单位欧姆，测量中为 `0xfffe` |
+| 11–12 | 体重，小端序；千克除以 200，磅除以 100 |
 
-A weigh-in is a stream of packets. First the weight settles, then the stabilized weight
-arrives, then the same packet again with the impedance. The scale keeps repeating the result
-for a while after the person steps off. Its clock ticks on every packet, so the server
-groups packets into one measurement by weight (±0.1 kg) and arrival time (3 minutes), not by
-the scale's timestamp.
+一次称重包含体重稳定、稳定体重与阻抗结果等连续数据包。离秤后仍会重复广播。服务器按体重（±0.1 kg）与接收时间（3 分钟）合并记录，避免重复保存。
 
-```
+```text
 app/
-  scale.py      BLE scanner (bleak) and packet parser
-  session.py    groups packets into measurements, picks the profile
-  body.py       body composition formulas
-  db.py         SQLite
-  notify.py     webhook and Telegram
-  analysis.py   optional AI weekly analysis (any OpenAI-compatible API)
-  main.py       FastAPI app, REST API and WebSocket
-  static/       the dashboard (one HTML file, no build step)
+  scale.py      蓝牙扫描与数据包解析
+  session.py    合并测量记录并识别用户
+  body.py       身体成分公式
+  db.py         SQLite 数据存储
+  notify.py     webhook 与 Telegram 通知
+  analysis.py   可选 AI 分析
+  errors.py     中文接口错误提示
+  main.py       REST API 与 WebSocket
+  static/       网页、图表与手机安装资源
 ```
 
-The REST API is documented at `/docs` (OpenAPI). The browser gets live packets, new
-measurements and the weekly analysis (piece by piece, as the model writes it) over the `/ws`
-WebSocket.
+REST API 的开发参考位于 `/docs`。协议字段与开发工具使用原名；网页与用户提示提供中文。浏览器通过 `/ws` 接收实时称重、测量记录和分析文字。
 
-## Development
-
-You don't need the scale or Bluetooth to work on the dashboard:
+## 开发与贡献
 
 ```bash
 pip install -r requirements-dev.txt
-python -m scripts.seed_demo data/demo.db        # two fictional people, 90 days of data
+python -m scripts.seed_demo data/demo.db
 MISCALE_DB=data/demo.db MISCALE_SCANNER=off uvicorn app.main:app --reload --port 8800
-
-# play a fake weigh-in in every open browser (nothing is saved)
+# 在页面模拟称重。模拟不会保存为真实测量记录。
 curl -X POST 'localhost:8800/api/debug/simulate?weight=81.4&impedance=478'
-
 pytest
 ruff check .
 ```
 
-The live demo is a static build of the same page with an in-memory backend
-(`demo/demo.js`) in place of the server:
+`seed_demo` 只用于独立演示数据库，不要指向真实称重数据。静态演示由 `scripts/build_demo.py` 构建，`.github/workflows/pages.yml` 可手动发布到 GitHub Pages。发布前在仓库设置中启用对应 Pages 来源。
 
-```bash
-python scripts/build_demo.py                     # writes site/
-python -m http.server -d site 8000               # open http://localhost:8000/
-```
+问题反馈、翻译、更多体脂秤和部署方案的贡献均可提出，见 [贡献指南](CONTRIBUTING.md)。反馈读数问题时附型号、蓝牙适配器、系统和一次称重后的 `/api/debug/packets` 输出。
 
-`.github/workflows/pages.yml` publishes it to GitHub Pages. It only runs by hand from the
-Actions tab, and the comment at the top of the file explains how to turn Pages on.
+## 致谢与许可
 
-## Contributing
+- 上游项目：[BrOrlandi/miscale-dashboard](https://github.com/BrOrlandi/miscale-dashboard)。
+- 身体成分公式来自 [openScale](https://github.com/oliexdev/openScale) 和 [wiecosystem/Bluetooth](https://github.com/wiecosystem/Bluetooth)。
+- 数据包格式参考 openScale 和 [xiaomi_mi_scale](https://github.com/lolouk44/xiaomi_mi_scale)。
+- [bleak](https://github.com/hbldh/bleak)、[FastAPI](https://fastapi.tiangolo.com/) 和 [Chart.js](https://www.chartjs.org/)。Chart.js 随项目提供。
 
-Issues and pull requests are welcome. Support for more scales is especially welcome, and so
-are translations and packaging (Home Assistant add-on, prebuilt images). See
-[CONTRIBUTING.md](CONTRIBUTING.md). When reporting a problem with readings, include the
-output of `/api/debug/packets` from a weigh-in.
-
-## Credits
-
-- Body composition formulas from [openScale](https://github.com/oliexdev/openScale) and the
-  `body_metrics` module of [wiecosystem/Bluetooth](https://github.com/wiecosystem/Bluetooth),
-  which reproduce the numbers of Xiaomi's app.
-- Packet format documented by the openScale and
-  [xiaomi_mi_scale](https://github.com/lolouk44/xiaomi_mi_scale) projects.
-- [bleak](https://github.com/hbldh/bleak), [FastAPI](https://fastapi.tiangolo.com/) and
-  [Chart.js](https://www.chartjs.org/) (MIT, bundled in `app/static/vendor`).
-
-Not affiliated with or endorsed by Xiaomi.
-
-## License
-
-[MIT](LICENSE)
+本项目与小米没有隶属或官方合作关系。使用 [MIT 许可证](LICENSE)，保留原作者版权声明。

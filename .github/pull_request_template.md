@@ -1,7 +1,8 @@
-## What and why
+## 改动与原因
 
-## How it was tested
+## 验证结果
 
-- [ ] `pytest` and `ruff check .` pass
-- [ ] Tried with a real scale, or with `/api/debug/simulate`
-- [ ] New UI text added to both `en` and `pt-BR`
+- [ ] 受改动影响的测试与 `ruff check .` 已通过。
+- [ ] 已使用真实体脂秤或 `/api/debug/simulate` 检查，并注明实机未验证的部分。
+- [ ] 新增界面文案已同步到 `zh-CN`、`en` 和 `pt-BR`。
+- [ ] 占位符、API 字段和测量单位保持兼容。

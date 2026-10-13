@@ -9,7 +9,7 @@ def client(tmp_path):
     os.environ["MISCALE_SCANNER"] = "off"
     import app.main as main
     importlib.reload(main)
-    return TestClient(main.app), main
+    return TestClient(main.app, headers={"Accept-Language": "en"}), main
 
 
 def test_profiles_measurements_and_settings(tmp_path):
@@ -47,3 +47,20 @@ def test_pwa_files(tmp_path):
             assert c.get(icon["src"]).status_code == 200
         assert c.get("/sw.js").headers["content-type"].startswith("text/javascript")
         assert c.get("/favicon.ico").status_code == 200
+
+
+def test_chinese_errors_through_api(tmp_path):
+    c, _ = client(tmp_path)
+    c.headers["Accept-Language"] = "zh-CN"
+    with c:
+        p = c.post("/api/profiles", json={"name": "小明"}).json()
+        bad_photo = c.put(f"/api/profiles/{p['id']}/photo", content=b"x",
+                          headers={"content-type": "text/plain"})
+        assert bad_photo.status_code == 415
+        assert bad_photo.json()["detail"] == "请上传 JPEG、PNG 或 WebP 格式的图片。"
+        bad_profile = c.post("/api/profiles", json={"name": "", "height_cm": 300})
+        assert bad_profile.status_code == 422
+        assert "姓名" in str(bad_profile.json()["detail"])
+        assert "身高" in str(bad_profile.json()["detail"])
+        missing = c.put("/api/profiles/999", json={"name": "小明"})
+        assert missing.status_code == 404 and missing.json()["detail"] == "未找到请求的内容。"

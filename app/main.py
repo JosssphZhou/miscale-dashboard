@@ -9,12 +9,15 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from . import analysis, notify
 from .db import DB
+from .errors import http_error, validation_error
 from .scale import Reading, ScaleListener
 from .session import DEFAULT_TOLERANCE_KG, Session, guess_profile, metrics_for
 
@@ -197,6 +200,8 @@ async def lifespan(app):
 
 
 app = FastAPI(title="Mi Scale Dashboard", lifespan=lifespan)
+app.add_exception_handler(StarletteHTTPException, http_error)
+app.add_exception_handler(RequestValidationError, validation_error)
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
 

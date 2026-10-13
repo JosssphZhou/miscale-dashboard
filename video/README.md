@@ -1,16 +1,10 @@
-# Promo video
+# 上游宣传视频工程
 
-The source of the Mi Scale Dashboard promo video: a ~41 second, text-only, music-driven clip
-built with code, so anyone can change it and render it again.
+这里保留上游约 41 秒的宣传视频源码。既有视频与录屏素材使用英语，属于上游展示素材；中文网页与连接流程请阅读根目录 [README](../README.md)。本次汉化不重新制作或发布宣传视频。
 
-- `out/miscale-dashboard.mp4`: 1920x1080, 30 fps, H.264 + AAC
-- `out/miscale-dashboard-vertical.mp4`: 1080x1920 for Reels, Shorts and TikTok
+## 渲染视频
 
-The landscape cut is on YouTube, unlisted: <https://youtu.be/ajvoJN0Qh_4>. The main README links to it.
-
-## Render
-
-Needs Node.js 20 or newer (Remotion brings its own ffmpeg).
+需要 Node.js 20 或更新版本。Remotion 提供所需的 ffmpeg。
 
 ```bash
 cd video
@@ -18,66 +12,59 @@ npm ci
 npm run render
 ```
 
-`npm run render` writes the soundtrack (`scripts/make_music.mjs`) and then renders both
-cuts into `out/`. It takes a few minutes; the 3D scenes render with WebGL through ANGLE
-(`remotion.config.ts`). `npm run docs` then refreshes the poster frame
-(`docs/video/poster.jpg`) that the main README shows as the video preview.
+命令先生成配乐，再输出两个视频：
 
-Other commands:
+- `out/miscale-dashboard.mp4`：1920×1080，30 帧/秒，H.264 + AAC。
+- `out/miscale-dashboard-vertical.mp4`：1080×1920，用于竖屏平台。
 
-```bash
-npm run studio                                   # preview and scrub in the browser
-node scripts/stills.mjs --scale 0.5 96 204 600   # single frames as PNGs in out/stills
-node scripts/stills.mjs --vertical 1100          # the same for the vertical cut
-```
-
-## How it is put together
-
-Everything follows one beat grid: 150 BPM at 30 fps, so a beat is exactly 12 frames.
-[`src/timeline.json`](src/timeline.json) lists the scenes and the sound cues in beats, and both
-the video (`src/Promo.tsx`) and the soundtrack (`scripts/make_music.mjs`) read it, so every cut
-lands on a hit.
-
-| Beats | Scene | File |
-| --- | --- | --- |
-| 0–24 | 3D: a person, drawn only as a silhouette outline, walks in and steps on a glass scale; the display counts up and locks the weight; body composition pops up | `src/scenes/ScaleScene.tsx`, `src/three/` |
-| 24–32 | The live weigh-in screen, recorded from the demo, on a screen floating in 3D | `src/scenes/ScreenScenes.tsx` |
-| 32–40 | The 90-day chart drawn in as motion graphics, then the recorded chart | `src/scenes/ScreenScenes.tsx`, `src/components/Chart.tsx` |
-| 40–48 | The dashboard updating after the weigh-in, with metric cards around it | `src/scenes/ScreenScenes.tsx` |
-| 48–64 | AI coach: the weekly analysis typed in, next to the recorded dashboard typing its own | `src/scenes/AiScene.tsx` |
-| 64–80 | A generic phone and chat app: the weigh-in message, then the weekly AI analysis | `src/scenes/PhoneScene.tsx` |
-| 80–88 | Free. Open source. | `src/scenes/EndScenes.tsx` |
-| 88–102 | Logo, repository and live demo links | `src/scenes/EndScenes.tsx` |
-
-The silhouette is a jointed figure of capsules, posed with two-bone IK for the legs, and drawn
-through the stencil buffer so only one clean contour around the whole body shows
-(`src/three/Mannequin.tsx`).
-
-## Recording the demo footage
-
-The clips in `public/footage/` are recordings of the [live demo](https://brorlandi.github.io/miscale-dashboard/)
-at 2560x1440 (a 1280x720 page at 2x), made with:
+场景通过 ANGLE 渲染 WebGL，配置位于 `remotion.config.ts`。`npm run docs` 更新根目录文档使用的预览图 `docs/video/poster.jpg`。
 
 ```bash
-uv run --with playwright python video/scripts/record_demo.py              # local Chromium
-uv run --with playwright python video/scripts/record_demo.py --cdp URL    # an existing Chromium
+npm run studio
+node scripts/stills.mjs --scale 0.5 96 204 600
+node scripts/stills.mjs --vertical 1100
 ```
 
-The script runs the page on a virtual clock (timers, `Date`, `requestAnimationFrame` and CSS
-animations only move when it steps them) and takes a screenshot per frame, so the clips are
-smooth at exactly 30 fps however slow the browser is. Run it again after the dashboard changes,
-and check the clip times noted at the top of `src/scenes/ScreenScenes.tsx`.
+第一条命令打开预览，后两条在 `out/stills` 输出横屏或竖屏的指定帧。
 
-## Assets and licenses
+## 场景结构
 
-| Asset | Source | License |
+视频采用 150 BPM、30 帧/秒，每拍恰为 12 帧。`src/timeline.json` 定义场景与音效，视频和配乐共同读取这份时间表。
+
+| 拍数 | 场景 | 源码 |
 | --- | --- | --- |
-| Music and sound effects (`public/audio/soundtrack.wav`, generated) | Synthesized from oscillators and seeded noise by [`scripts/make_music.mjs`](scripts/make_music.mjs): an original 150 BPM phonk/trap beat (808, claps, hats, cowbell melody, pads) plus impacts, whooshes, risers, the scale's ticks and the phone pings. No samples or third-party audio. | MIT, with this repository |
-| Demo footage (`public/footage/*.mp4`) | Recorded from the live demo by `scripts/record_demo.py`. All data is made up (`demo/demo.js`); Alex's photo is AI-generated, not a real person ([docs/demo](../docs/demo/README.md)). | MIT, with this repository |
-| Logo | Redrawn as SVG from `scripts/make_icons.py` | MIT, with this repository |
-| Fonts: [Anton](https://fonts.google.com/specimen/Anton), [Inter](https://fonts.google.com/specimen/Inter) | Google Fonts, loaded at render time by `@remotion/google-fonts` | SIL Open Font License 1.1 |
-| Phone and chat app | Drawn in CSS: a generic phone frame and a generic chat app, no real brand | MIT, with this repository |
-| [Remotion](https://www.remotion.dev) | npm | [Remotion License](https://www.remotion.dev/license): free for individuals and companies of up to 3 people; larger companies need a company license |
-| [three.js](https://threejs.org), [React Three Fiber](https://github.com/pmndrs/react-three-fiber), React | npm | MIT |
+| 0–24 | 轮廓人物走上玻璃体脂秤，体重稳定后显示身体成分 | `src/scenes/ScaleScene.tsx`、`src/three/` |
+| 24–32 | 真实演示页面的称重录屏 | `src/scenes/ScreenScenes.tsx` |
+| 32–40 | 90 天趋势图动画与页面录屏 | `src/components/Chart.tsx`、`src/scenes/ScreenScenes.tsx` |
+| 40–48 | 称重后更新看板与指标 | `src/scenes/ScreenScenes.tsx` |
+| 48–64 | 每周分析逐步显示 | `src/scenes/AiScene.tsx` |
+| 64–80 | 通用手机和聊天界面的称重通知与分析 | `src/scenes/PhoneScene.tsx` |
+| 80–88 | 免费与开源介绍 | `src/scenes/EndScenes.tsx` |
+| 88–102 | 项目标识、仓库与演示链接 | `src/scenes/EndScenes.tsx` |
 
-Emoji in the phone messages are drawn by the emoji font of the machine that renders the video.
+人物由胶囊形关节构成，腿部使用两段逆向运动学，模板缓冲区绘制外轮廓。实现位于 `src/three/Mannequin.tsx`。
+
+## 录制演示素材
+
+`public/footage/` 保留上游录屏，原始采集尺寸为 2560×1440。录制脚本为 `scripts/record_demo.py`：
+
+```bash
+uv run --with playwright python video/scripts/record_demo.py
+uv run --with playwright python video/scripts/record_demo.py --cdp URL
+```
+
+脚本通过虚拟时钟推进计时器、日期、动画帧与 CSS 动画，逐帧截图，再合成 30 帧/秒视频。页面变动后如需重制视频，应重新录屏，并检查 `src/scenes/ScreenScenes.tsx` 中的片段时间。
+
+## 素材与许可证
+
+| 素材 | 来源与许可 |
+| --- | --- |
+| 配乐和音效 | `scripts/make_music.mjs` 用振荡器与固定随机噪声合成，无第三方采样，使用仓库 MIT 许可证 |
+| 演示录屏 | 虚构数据与 AI 生成头像，使用仓库 MIT 许可证，见 [演示素材说明](../docs/demo/README.md) |
+| 项目标识 | 基于 `scripts/make_icons.py` 绘制的 SVG，使用 MIT 许可证 |
+| Anton、Inter 字体 | Google Fonts，SIL Open Font License 1.1 |
+| 手机与聊天界面 | CSS 绘制的通用造型，使用 MIT 许可证 |
+| Remotion | 使用 [Remotion 许可证](https://www.remotion.dev/license)，使用前核对适用条款 |
+| three.js、React Three Fiber、React | MIT 许可证 |
+
+消息中的表情符号由渲染机器的字体绘制。上游横屏视频见 [YouTube](https://youtu.be/ajvoJN0Qh_4)。

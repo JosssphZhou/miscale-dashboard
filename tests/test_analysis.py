@@ -54,6 +54,16 @@ def test_prompt_language():
         assert json.loads(msgs[1]["content"].split("\n", 1)[1]) == data
 
 
+def test_chinese_analysis_prompt(monkeypatch):
+    monkeypatch.setattr(analysis, "LANG", "zh-CN")
+    assert analysis.lang() == "zh-CN"
+    data = {"person": {"name": "小明"}, "week": {}}
+    msgs = analysis.messages(data)
+    assert "请用简体中文" in msgs[0]["content"]
+    assert "需要留意" in msgs[0]["content"] and "不要诊断" in msgs[0]["content"]
+    assert json.loads(msgs[1]["content"].split("\n", 1)[1]) == data
+
+
 def test_language_and_switches(monkeypatch):
     monkeypatch.setattr(analysis, "LANG", "pt-br")
     assert analysis.lang() == "pt-BR"

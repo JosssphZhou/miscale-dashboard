@@ -1,24 +1,9 @@
-# Demo assets
+# 演示素材说明
 
-`alex.jpg` is the profile photo of **Alex**, one of the two fictional people in the demo data
-(`scripts/seed_demo.py` and the browser demo built by `scripts/build_demo.py`). It is not a
-photo of a real person: it was generated with OpenAI's image API (`gpt-image-2`, 1024x1024,
-quality "high") and scaled down to a 512x512 JPEG, the same size the dashboard uses for
-uploaded photos.
+`alex.jpg` 是虚构用户 Alex 的头像，供 `scripts/seed_demo.py` 与静态演示使用。头像由上游通过 OpenAI 图像接口生成，不是真实人物照片。原图为 1024×1024，缩小为 512×512 JPEG，与看板上传照片的尺寸一致。
 
-Prompt:
+上游提示描述一个三十岁左右的虚构男子：短深棕色头发、浅胡茬、灰色圆领上衣，正对镜头自然微笑；方形肩部以上构图、浅灰绿色背景、柔和光照。图片不含文字、商标或水印。
 
-> Photorealistic portrait photo of a fictional, entirely made-up man in his early thirties, an
-> ordinary everyday person who is not any real or famous individual. Friendly, relaxed natural
-> smile, looking at the camera. Short dark brown hair, light stubble, plain heather-grey
-> crew-neck t-shirt. Framed from the shoulders up, head centered in a square frame with some
-> space above the head. Plain, soft, evenly lit light grey-green studio background, soft
-> natural light, shallow depth of field, sharp focus on the eyes. Natural skin texture, no
-> retouching look. No text, no logos, no watermark, no jewelry, no glasses.
+另一位虚构用户 Sam 使用姓名首字母头像。
 
-Sam, the other demo profile, keeps the initials avatar.
-
-The weekly analysis in `docs/screenshots/dashboard-*.png` and `analysis.gif` was written by
-`gpt-5.4-mini` from the same fictional data (`scripts/seed_demo.py`). The live demo has no AI
-behind it: `demo/demo.js` fills fixed sentences with the demo's numbers and streams them like
-a model would.
+旧版截图中的每周分析由上游使用虚构数据生成。静态演示没有调用 AI：`demo/demo.js` 将演示数字填入固定语句，再逐步显示文字。中文截图同样来自静态演示，不能证明真实蓝牙接收或真实 AI 调用成功。

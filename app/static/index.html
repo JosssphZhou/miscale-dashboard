@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mi Scale Dashboard</title>
-<meta name="description" content="Live weigh-ins, body composition and history from the Xiaomi Mi Body Composition Scale 2.">
+<title>Mi Scale 体脂秤看板</title>
+<meta name="description" content="查看小米体脂秤 2 的实时称重、身体成分和历史记录。">
 <meta name="theme-color" content="#f5f5f2">
 <link rel="icon" href="/static/icons/favicon.png" type="image/png">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -281,7 +281,7 @@ tr.new td { animation: rowIn 2.4s ease; }
 <main>
   <header>
     <div class="toolbar" style="gap:14px">
-      <h1>Mi Scale</h1>
+      <h1 data-t="appName">Mi Scale</h1>
       <div class="tabs" id="tabs"></div>
     </div>
     <div class="toolbar">
@@ -415,7 +415,7 @@ tr.new td { animation: rowIn 2.4s ease; }
   <form onsubmit="saveSettings(event)">
     <h2 data-t="settings"></h2>
     <label data-t="language"></label>
-    <select id="sLang"><option value="auto" data-t="langAuto"></option><option value="en">English</option><option value="pt-BR">Português (Brasil)</option></select>
+    <select id="sLang"><option value="auto" data-t="langAuto"></option><option value="zh-CN">简体中文</option><option value="en">English</option><option value="pt-BR">Português (Brasil)</option></select>
     <label data-t="unitLabel"></label>
     <select id="sUnit"><option value="kg">kg</option><option value="lb">lb</option></select>
     <label id="sTolLabel"></label><input id="sTol" type="number" step="0.5" min="0.5" max="50">
@@ -429,7 +429,127 @@ tr.new td { animation: rowIn 2.4s ease; }
 <script>
 // ---------- Translations ----------
 const STRINGS = {
+  "zh-CN": {
+    "appName": "Mi Scale",
+    "pageTitle": "Mi Scale 体脂秤看板",
+    "description": "查看小米体脂秤 2 的实时称重、身体成分和历史记录。",
+    "connecting": "正在连接",
+    "live": "已连接",
+    "reconnecting": "正在重新连接",
+    "btError": "蓝牙异常",
+    "scannerOff": "等待启用蓝牙",
+    "theme": "主题",
+    "themeAuto": "跟随系统",
+    "themeLight": "浅色",
+    "themeDark": "深色",
+    "settings": "设置",
+    "profile": "用户档案",
+    "addPerson": "+ 添加用户",
+    "newPerson": "添加用户",
+    "scale": "体脂秤",
+    "stepOn": "请站上体脂秤",
+    "measuring": "正在测量…",
+    "stableMeasuring": "体重已稳定，正在测量身体成分…",
+    "ready": "测量完成，阻抗 {imp} Ω",
+    "done": "测量完成",
+    "unknownPerson": "未能根据体重识别用户",
+    "lastMeasurement": "最近一次测量",
+    "compareWith": "对比记录",
+    "previous": "上一次",
+    "d7": "7 天",
+    "d30": "30 天",
+    "d90": "90 天",
+    "y1": "1 年",
+    "all": "全部",
+    "noMeasurements": "还没有测量记录。",
+    "arrowsSince": "箭头表示与 {when} 的变化。绿色表示改善，红色表示需要留意。",
+    "noRef": "还没有距今至少 {days} 天的记录可供对比。",
+    "needHeight": "请在用户档案中填写身高和出生日期，以计算身体成分。",
+    "noImpedance": "本次未测得阻抗。请赤脚站上秤，等待测量结束。",
+    "showMore": "显示更多",
+    "weight": "体重",
+    "avg7": "7 天平均",
+    "bodyFat": "体脂率",
+    "history": "历史记录",
+    "everyone": "所有用户",
+    "date": "时间",
+    "muscle": "肌肉量",
+    "water": "水分",
+    "visceral": "内脏脂肪",
+    "who": "用户",
+    "unknown": "未识别用户",
+    "deleteMeasurement": "删除这条测量记录？",
+    "delete": "删除",
+    "bmi": "身体质量指数",
+    "fatMass": "脂肪量",
+    "protein": "蛋白质",
+    "bone": "骨量",
+    "visceralFat": "内脏脂肪",
+    "bmr": "基础代谢",
+    "impedance": "阻抗",
+    "readingScale": "正在读取体脂秤…",
+    "stable": "已稳定",
+    "composition": "身体成分",
+    "stableKeep": "体重已稳定，正在测量身体成分，请继续站在秤上…",
+    "notRecognized": "未识别到用户",
+    "closeHint": "稍后自动关闭，点击可保持显示",
+    "close": "关闭",
+    "install": "安装应用",
+    "iosHint": "安装到 iPhone：轻点分享 {icon}，再选择“添加到主屏幕”。",
+    "since": "较 {when} 变化 {d}",
+    "resNotSaved": "本次测量未保存。",
+    "resUnknown": "未能根据体重识别用户，请在历史记录中指定用户。",
+    "resNoHeight": "请在用户档案中填写身高和出生日期，以查看身体成分。",
+    "resNoImp": "未测得阻抗，请赤脚站上秤，等待测量结束后查看体脂率和肌肉量。",
+    "choosePhoto": "选择照片…",
+    "removePhoto": "移除照片",
+    "name": "姓名",
+    "heightCm": "身高（厘米）",
+    "birth": "出生日期",
+    "sex": "性别",
+    "male": "男",
+    "female": "女",
+    "refWeight": "大致体重（{unit}），用于识别首次称重",
+    "sexNote": "身高、年龄和性别用于计算身体成分。",
+    "deleteProfile": "删除档案",
+    "cancel": "取消",
+    "save": "保存",
+    "confirmDeleteProfile": "删除 {name} 的档案？该用户的测量记录会保留，并标为“未识别用户”。",
+    "photoFailed": "照片上传失败：",
+    "photoOpenFailed": "无法打开这张图片。",
+    "photoConvertFailed": "无法转换这张照片。",
+    "language": "语言",
+    "langAuto": "跟随浏览器",
+    "unitLabel": "体重单位",
+    "tolerance": "识别用户的允许体重偏差（{unit}）",
+    "tolNote": "称重会归入最近一次体重最接近的用户档案。超过允许偏差时会标为“未识别用户”，可在历史记录中指定用户。",
+    "analysisTitle": "本周分析",
+    "analysisRange": "{start}至{end}",
+    "generateNow": "立即生成",
+    "writing": "正在生成…",
+    "analysisEmpty": "还没有分析。下次将在{day} {hour}生成，也可以立即生成。",
+    "analysisMeta": "生成于 {when}，模型：{model}",
+    "analysisOff": "AI 可根据体重趋势生成每周摘要，支持 OpenAI、OpenRouter 和本地 Ollama。如需启用，请按说明配置 {var}。",
+    "analysisHowTo": "查看启用方法",
+    "analysisDocs": "https://github.com/JosssphZhou/miscale-dashboard#ai-每周分析可选",
+    "analysisNoData": "最近 7 天没有称重记录，暂时无法分析。",
+    "analysisBusy": "正在生成分析，请稍后再试。",
+    "analysisFailed": "分析生成失败：{detail}",
+    "demoModel": "演示（模拟分析）",
+    "requestFailed": "请求失败，请检查输入后重试。",
+    "networkError": "无法连接服务器，请稍后重试。",
+    "scannerWaiting": "页面已准备好。请确认体脂秤型号为 XMTZC05HM，再启用服务器蓝牙扫描。",
+    "bluetoothHelp": "无法接收体脂秤广播，请检查服务器蓝牙是否开启、是否获准使用蓝牙，并将体脂秤放到附近。",
+  },
   en: {
+    "appName": "Mi Scale",
+    "pageTitle": "Mi Scale Dashboard",
+    "description": "Live weigh-ins, body composition and history from the Xiaomi Mi Body Composition Scale 2.",
+    "demoModel": "demo (simulated)",
+    "requestFailed": "Request failed. Check your input and try again.",
+    "networkError": "Could not reach the server. Please try again.",
+    "scannerWaiting": "The dashboard is ready. Confirm your scale is XMTZC05HM, then enable Bluetooth scanning on the server.",
+    "bluetoothHelp": "Check the server Bluetooth adapter and permissions, and move the scale nearby.",
     connecting: "connecting", live: "Connected", reconnecting: "reconnecting", btError: "Bluetooth error", scannerOff: "scanner off",
     theme: "Theme", themeAuto: "Automatic (follows the system)", themeLight: "Light", themeDark: "Dark",
     settings: "Settings", profile: "Profile", addPerson: "+ Person", newPerson: "New person",
@@ -472,6 +592,14 @@ const STRINGS = {
     analysisFailed: "The analysis failed: {detail}",
   },
   "pt-BR": {
+    "appName": "Mi Scale",
+    "pageTitle": "Mi Scale Dashboard",
+    "description": "Pesagens ao vivo, composição corporal e histórico da Xiaomi Mi Body Composition Scale 2.",
+    "demoModel": "demo (simulado)",
+    "requestFailed": "A solicitação falhou. Verifique os dados e tente novamente.",
+    "networkError": "Não foi possível acessar o servidor. Tente novamente.",
+    "scannerWaiting": "O painel está pronto. Confirme que a balança é XMTZC05HM e ative o Bluetooth no servidor.",
+    "bluetoothHelp": "Verifique o adaptador Bluetooth e as permissões do servidor e aproxime a balança.",
     connecting: "conectando", live: "Conectado", reconnecting: "reconectando", btError: "Bluetooth com erro", scannerOff: "scanner desligado",
     theme: "Tema", themeAuto: "Automático (segue o sistema)", themeLight: "Claro", themeDark: "Escuro",
     settings: "Configurações", profile: "Perfil", addPerson: "+ Pessoa", newPerson: "Nova pessoa",
@@ -515,20 +643,40 @@ const STRINGS = {
   },
 };
 
-function storedLang() { try { return localStorage.getItem("lang") || "auto"; } catch { return "auto"; } }
+function storedLang() { try { return localStorage.getItem("lang") || "zh-CN"; } catch { return "zh-CN"; } }
 function resolveLang(pref) {
   if (pref !== "auto" && STRINGS[pref]) return pref;
-  return (navigator.languages || [navigator.language]).some((l) => /^pt/i.test(l)) ? "pt-BR" : "en";
+  for (const l of navigator.languages || [navigator.language]) {
+    if (/^zh/i.test(l)) return "zh-CN";
+    if (/^pt/i.test(l)) return "pt-BR";
+    if (/^en/i.test(l)) return "en";
+  }
+  return "zh-CN";
 }
 let lang = resolveLang(storedLang());
 const t = (key, vars = {}) => (STRINGS[lang][key] ?? STRINGS.en[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
 
 function applyStrings() {
   document.documentElement.lang = lang;
+  document.title = t("pageTitle");
+  document.querySelector('meta[name="description"]').content = t("description");
   document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = t(el.dataset.t); });
   document.querySelectorAll("[data-t-title]").forEach((el) => { el.title = t(el.dataset.tTitle); el.setAttribute("aria-label", el.title); });
   document.querySelectorAll("[data-t-aria]").forEach((el) => el.setAttribute("aria-label", t(el.dataset.tAria)));
   document.querySelectorAll(".unit").forEach((el) => { el.textContent = unit(); });
+}
+
+// API errors follow the language selected in this browser.
+function apiFetch(path, options = {}) {
+  const headers = new Headers(options.headers);
+  headers.set("Accept-Language", lang);
+  return fetch(path, { ...options, headers });
+}
+function errorDetail(detail) {
+  if (Array.isArray(detail)) return detail.map((e) => e.msg || t("requestFailed")).join("\n");
+  if (!detail) return t("requestFailed");
+  if (lang === "zh-CN" && !/[\u3400-\u9fff]/.test(String(detail))) return t("requestFailed");
+  return String(detail);
 }
 
 // ---------- Helpers ----------
@@ -542,7 +690,8 @@ try { current = +localStorage.getItem("profile") || null; } catch {}
 const LB = 0.45359237;
 const unit = () => settings.unit === "lb" ? "lb" : "kg";
 const mass = (kg) => kg == null ? null : (unit() === "lb" ? kg / LB : kg);   // display value for a weight in kg
-const locale = () => lang === "pt-BR" ? "pt-BR" : "en-US";
+const separator = () => lang === "zh-CN" ? "，" : " · ";
+const locale = () => lang === "en" ? "en-US" : lang;
 const fmt = (v, d = 1) => v == null ? "–" : Number(v).toLocaleString(locale(), { minimumFractionDigits: d, maximumFractionDigits: d });
 const fmtDate = (s) => new Date(s).toLocaleString(locale(), { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
 const num = (v, dec) => dec === 0 ? Math.round(v).toLocaleString(locale()) : fmt(v, dec);
@@ -607,9 +756,9 @@ function redrawChart() { if (chart) { chart.destroy(); chart = null; } if (profi
 let deferred = false;   // new data arrived while the weigh-in screen was open
 async function load(animate = false) {
   [all, profiles, settings] = await Promise.all([
-    fetch("/api/measurements").then((r) => r.json()),
-    fetch("/api/profiles").then((r) => r.json()),
-    fetch("/api/settings").then((r) => r.json()),
+    apiFetch("/api/measurements").then((r) => r.json()),
+    apiFetch("/api/profiles").then((r) => r.json()),
+    apiFetch("/api/settings").then((r) => r.json()),
   ]);
   if (!profileOf(current)) current = profiles[0]?.id ?? null;
   for (const pid in analyses) delete analyses[pid];   // fetched again with the rest
@@ -678,7 +827,7 @@ function renderLast(animate = false) {
   const box = $("lastMetrics");
   [...$("cmp").children].forEach((b) => b.classList.toggle("active", +b.dataset.days === cmpDays));
   if (!m) { box.innerHTML = ""; $("lastTitle").textContent = t("lastMeasurement"); $("lastNote").textContent = t("noMeasurements"); return; }
-  $("lastTitle").textContent = `${t("lastMeasurement")} · ${fmtDate(m.measured_at)}`;
+  $("lastTitle").textContent = `${t("lastMeasurement")}${separator()}${fmtDate(m.measured_at)}`;
   const ref = reference(m);
   box.innerHTML = METRICS.map(([key, get, dec, suffix, dir]) => {
     const v = get(m);
@@ -744,7 +893,7 @@ async function loadAnalysis(force = false) {
   if (!current || !settings.ai_enabled) return renderAnalysis();
   if (force || !(current in analyses)) {
     const pid = current;
-    const list = await fetch(`/api/analyses?profile_id=${pid}&limit=1`).then((r) => r.ok ? r.json() : []).catch(() => []);
+    const list = await apiFetch(`/api/analyses?profile_id=${pid}&limit=1`).then((r) => r.ok ? r.json() : []).catch(() => []);
     analyses[pid] = list[0] || null;
   }
   renderAnalysis();
@@ -772,10 +921,10 @@ function renderAnalysis() {
     box.innerHTML = `<p>${esc(t("analysisEmpty", { day: weekdayName(settings.ai_weekday ?? 5), hour }))}</p>` + note;
     return;
   }
-  $("anTitle").textContent = `${t("analysisTitle")} · ${t("analysisRange", { start: dayShort(a.week_start), end: dayShort(a.week_end) })}`;
+  $("anTitle").textContent = `${t("analysisTitle")}${separator()}${t("analysisRange", { start: dayShort(a.week_start), end: dayShort(a.week_end) })}`;
   box.className = "analysis";
   box.innerHTML = renderAnalysisText(a.text) + note +
-    `<div class="meta">${esc(t("analysisMeta", { when: fmtDate(a.created_at), model: a.model || "" }))}</div>`;
+    `<div class="meta">${esc(t("analysisMeta", { when: fmtDate(a.created_at), model: a.model === "demo (simulated)" ? t("demoModel") : a.model || "" }))}</div>`;
 }
 
 function renderTyping() {
@@ -846,13 +995,13 @@ async function runAnalysis() {
   if (!pid || typing?.pid === pid) return;
   startTyping(pid);
   let r;
-  try { r = await fetch(`/api/analyses/run?profile_id=${pid}`, { method: "POST" }); } catch (err) { r = null; }
+  try { r = await apiFetch(`/api/analyses/run?profile_id=${pid}`, { method: "POST" }); } catch (err) { r = null; }
   if (r?.ok) return endTyping(await r.json());
-  const detail = r ? (await r.json().catch(() => ({}))).detail : "network";
-  const note = r?.status === 409 ? t(String(detail).includes("already") ? "analysisBusy" : "analysisNoData")
-    : r?.status === 503 ? "" : t("analysisFailed", { detail: detail ?? r?.status });
+  const detail = r ? (await r.json().catch(() => ({}))).detail : t("networkError");
+  const note = r?.status === 409 ? t(/already|正在/.test(String(detail)) ? "analysisBusy" : "analysisNoData")
+    : r?.status === 503 ? "" : t("analysisFailed", { detail: r ? errorDetail(detail) : t("networkError") });
   if (r?.status === 503) settings.ai_enabled = false;
-  if (r?.status === 409 && String(detail).includes("already")) return;   // another browser asked first: its text is typing here too
+  if (r?.status === 409 && /already|正在/.test(String(detail))) return;   // another browser asked first: its text is typing here too
   stopTyping(pid, note);
 }
 
@@ -941,14 +1090,14 @@ function renderHistory(animate = false) {
 $("showAll").addEventListener("change", () => renderHistory());
 
 async function assign(id, pid) {
-  await fetch(`/api/measurements/${id}`, { method: "PATCH", headers: { "content-type": "application/json" },
+  await apiFetch(`/api/measurements/${id}`, { method: "PATCH", headers: { "content-type": "application/json" },
     body: JSON.stringify({ profile_id: pid ? +pid : null }) });
   load();
 }
 
 async function del(id) {
   if (!confirm(t("deleteMeasurement"))) return;
-  await fetch(`/api/measurements/${id}`, { method: "DELETE" });
+  await apiFetch(`/api/measurements/${id}`, { method: "DELETE" });
   load();
 }
 
@@ -1003,7 +1152,7 @@ $("pFile").addEventListener("change", async (e) => {
 async function removePhoto() {
   if (pendingPhoto) { pendingPhoto = null; $("pFile").value = ""; renderPhotoEdit(editing ? profileOf(editing) : {}); return; }
   if (!editing) return;
-  await fetch(`/api/profiles/${editing}/photo`, { method: "DELETE" });
+  await apiFetch(`/api/profiles/${editing}/photo`, { method: "DELETE" });
   await load();
   renderPhotoEdit(profileOf(editing));
 }
@@ -1013,13 +1162,13 @@ async function saveProfile(e) {
   const ref = +$("pRef").value || null;
   const body = { name: $("pName").value.trim(), height_cm: +$("pHeight").value || null, birth: $("pBirth").value || null,
     male: $("pMale").value === "1", ref_weight: ref && (unit() === "lb" ? +(ref * LB).toFixed(2) : ref) };
-  const r = await fetch(editing ? `/api/profiles/${editing}` : "/api/profiles", {
+  const r = await apiFetch(editing ? `/api/profiles/${editing}` : "/api/profiles", {
     method: editing ? "PUT" : "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-  if (!r.ok) { alert(JSON.stringify((await r.json().catch(() => ({}))).detail)); return; }
+  if (!r.ok) { alert(errorDetail((await r.json().catch(() => ({}))).detail)); return; }
   const p = await r.json();
   if (pendingPhoto) {
-    const up = await fetch(`/api/profiles/${p.id}/photo`, { method: "PUT", headers: { "content-type": "image/jpeg" }, body: pendingPhoto });
-    if (!up.ok) alert(t("photoFailed") + (await up.text()));
+    const up = await apiFetch(`/api/profiles/${p.id}/photo`, { method: "PUT", headers: { "content-type": "image/jpeg" }, body: pendingPhoto });
+    if (!up.ok) alert(t("photoFailed") + errorDetail((await up.json().catch(() => ({}))).detail));
   }
   profileDlg.close();
   current = p.id;
@@ -1030,7 +1179,7 @@ async function saveProfile(e) {
 async function deleteProfile() {
   const p = profileOf(editing);
   if (!confirm(t("confirmDeleteProfile", { name: p.name }))) return;
-  await fetch(`/api/profiles/${editing}`, { method: "DELETE" });
+  await apiFetch(`/api/profiles/${editing}`, { method: "DELETE" });
   profileDlg.close();
   current = null;
   load();
@@ -1057,7 +1206,7 @@ async function saveSettings(e) {
   lang = resolveLang($("sLang").value);
   const u = $("sUnit").value;
   const tol = +$("sTol").value || 5;
-  settings = await fetch("/api/settings", { method: "PUT", headers: { "content-type": "application/json" },
+  settings = await apiFetch("/api/settings", { method: "PUT", headers: { "content-type": "application/json" },
     body: JSON.stringify({ unit: u, tolerance_kg: u === "lb" ? +(tol * LB).toFixed(2) : tol }) }).then((r) => r.json());
   settingsDlg.close();
   $("liveNum")._val = null;
@@ -1253,7 +1402,7 @@ function showLive(msg) {
     if (g.p.id !== current) select(g.p.id);
     const prev = all.find((m) => m.profile_id === g.p.id && m.id > 0 && Date.now() - new Date(m.measured_at) > 180000);
     if (prev) delta = t("since", { d: signed(mass(msg.weight_kg) - mass(prev.weight_kg), 2, " " + unit()), when: fmtDate(prev.measured_at) });
-    $("liveDelta").textContent = delta ? `${g.p.name} · ${delta}` : g.p.name;
+    $("liveDelta").textContent = delta ? `${g.p.name}${separator()}${delta}` : g.p.name;
   } else $("liveDelta").textContent = msg.stabilized ? t("unknownPerson") : "";
   showScan(msg, g, delta);
   resetTimer = setTimeout(() => {
@@ -1279,6 +1428,7 @@ function connect() {
     } else if (msg.type === "status") {
       if (msg.scanner_error) setConn("err", "btError");
       else if (!msg.scanner) setConn("", "scannerOff");
+      if (!msg.scanner || msg.scanner_error) $("liveState").textContent = t(!msg.scanner ? "scannerWaiting" : "bluetoothHelp");
     }
   };
 }

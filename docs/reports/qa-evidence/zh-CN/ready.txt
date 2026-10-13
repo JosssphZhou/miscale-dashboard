@@ -1,0 +1,95 @@
+[p1 "Mi Scale 体脂秤看板" | space "Mi Scale 中文界面验收"(3): 1 managed, 0 untracked — p1* "Mi Scale 体脂秤看板"]
+root
+  container
+    container
+      heading
+        text "Mi Scale"
+      text "等待启用蓝牙"
+      button "跟随系统" [ref=124, loc=css:button[aria-label="跟随系统"]]
+        svg_root
+      button "浅色" [ref=125, loc=css:button[aria-label="浅色"]]
+        svg_root
+      button "深色" [ref=126, loc=css:button[aria-label="深色"]]
+        svg_root
+      button [ref=127]
+        text "安装应用"
+      button "设置" [ref=128, loc=css:button[aria-label="设置"]]
+        svg_root
+      button [ref=129]
+        text "用户档案"
+      button [ref=130]
+        text "+ 添加用户"
+    heading
+      text "体脂秤"
+    text "--"
+    text "kg"
+    text "页面已准备好。请确认体脂秤型号为 XMTZC05HM，再启用服务器蓝牙扫描。"
+    heading
+      text "最近一次测量"
+    button [ref=131]
+      text "上一次"
+    button [ref=132]
+      text "7 天"
+    button [ref=133]
+      text "30 天"
+    text "还没有测量记录。"
+    container
+      heading
+        text "本周分析"
+      text "AI 可根据体重趋势生成每周摘要，支持 OpenAI、OpenRouter 和本地 Ollama。如需启用，请按说明配置"
+      text "MISCALE_AI_API_KEY"
+      text "。"
+      anchor [ref=139, url=https://github.com/JosssphZhou/miscale-dashboard#ai-%E6%AF%8F%E5%91%A8%E5%88%86%E6%9E%90%E5%8F%AF%E9%80%89]
+        text "查看启用方法"
+    container
+      heading
+        text "体重"
+      button [ref=135]
+        text "30 天"
+      button [ref=136]
+        text "90 天"
+      button [ref=137]
+        text "1 年"
+      button [ref=138]
+        text "全部"
+      canvas
+  svg_root
+  svg_root
+  svg_root
+  svg_root
+  svg_root
+  svg_root
+  dialog_modal [ref=140]
+    form
+      heading
+        text "添加用户"
+      container
+        text "?"
+        button [ref=141]
+          text "选择照片…"
+      text "姓名"
+      textbox [ref=142]
+      text "身高（厘米）"
+      spinbutton [ref=143]
+      text "出生日期"
+      textbox [ref=144]
+        spinbutton "年" [ref=145, loc=role:spinbutton[name="年"]]
+          text "年"
+        text "/"
+        spinbutton "月" [ref=146, loc=role:spinbutton[name="月"]]
+          text "月"
+        text "/"
+        spinbutton "日" [ref=147, loc=role:spinbutton[name="日"]]
+          text "日"
+      text "性别"
+      combobox [ref=148]
+        text "男"
+      text "大致体重（kg），用于识别首次称重"
+      spinbutton [ref=149]
+      paragraph
+        text "身高、年龄和性别用于计算身体成分。"
+      container
+        button [ref=150]
+          text "取消"
+        button [ref=151]
+          text "保存"

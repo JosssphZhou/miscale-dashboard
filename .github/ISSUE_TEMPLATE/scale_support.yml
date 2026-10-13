@@ -1,23 +1,23 @@
-name: Support for another scale
-description: Ask for (or help with) a scale model that isn't supported yet
+name: 支持其他体脂秤
+description: 申请或协助支持新型号
 labels: [scale-support]
 body:
   - type: input
     id: model
     attributes:
-      label: Scale model and number
-      placeholder: Mi Smart Scale 2 (XMTZC04HM)
+      label: 体脂秤型号 and number
+      placeholder: 小米体重秤 2（XMTZC04HM）
     validations:
       required: true
   - type: textarea
     id: devices
     attributes:
-      label: What the adapter sees
-      description: Step on the scale and paste the scale's entry from /api/debug/devices (service data and manufacturer data).
+      label: 蓝牙适配器收到的数据
+      description: 站上秤后，粘贴 /api/debug/devices 中该设备的条目，包括服务数据与制造商数据。
       render: json
   - type: checkboxes
     id: help
     attributes:
-      label: Can you help?
+      label: 能否协助测试？
       options:
-        - label: I can test changes with this scale
+        - label: 我可以使用这台秤测试改动

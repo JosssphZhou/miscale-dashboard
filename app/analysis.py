@@ -9,7 +9,7 @@ local server that needs no key) is set.
 - MISCALE_AI_BASE_URL: default https://api.openai.com/v1.
 - MISCALE_AI_MODEL: model name; a comma-separated list is tried in order.
 - MISCALE_AI_WEEKDAY / MISCALE_AI_HOUR: when the weekly analysis runs (default Saturday 9:00).
-- MISCALE_AI_LANG: language of the text, en or pt-BR (default MISCALE_LANG).
+- MISCALE_AI_LANG: language of the text, zh-CN, en or pt-BR (default MISCALE_LANG).
 
 Only the numbers below are sent to the provider: the week's weigh-ins and body composition,
 the averages of the previous weeks, and the person's first name, age, height and sex.
@@ -33,7 +33,7 @@ BASE_URL = (os.environ.get("MISCALE_AI_BASE_URL", "").strip() or "https://api.op
 DEFAULT_MODEL = "gpt-5.4-mini"
 MODELS = [m.strip() for m in (os.environ.get("MISCALE_AI_MODEL", "").strip() or DEFAULT_MODEL).split(",") if m.strip()]
 ENABLED = os.environ.get("MISCALE_AI_ENABLED", "").strip().lower()
-LANG = os.environ.get("MISCALE_AI_LANG", "").strip() or os.environ.get("MISCALE_LANG", "en")
+LANG = os.environ.get("MISCALE_AI_LANG", "").strip() or os.environ.get("MISCALE_LANG", "zh-CN")
 TIMEOUT = 180
 LB = 0.45359237
 
@@ -61,11 +61,27 @@ def enabled() -> bool:
 
 
 def lang() -> str:
+    if LANG.lower().startswith("zh"):
+        return "zh-CN"
     return "pt-BR" if LANG.lower().startswith("pt") else "en"
 
 
 # ---------- Prompt ----------
 SYSTEM = {
+    "zh-CN": """你是一位友善、务实的健康教练。请根据小米体脂秤 2 的数据，
+为一位用户写本周分析。你只知道这些数字，不知道用户的训练、睡眠或饮食情况。
+
+请用简体中文，称呼用户为“你”。遵守以下要求：
+- 只写纯文本，不使用 Markdown、星号、井号或表格。列表项以“- ”开头，不编号。
+- 开头用两三句话概括本周体重和身体成分的变化。
+- 接着写“有所改善”和“需要留意”两部分。标题各占一行，不加冒号。
+  每部分最多列三项，用具体数字说明。
+- 最后写“下周建议”，给出两三项通用、可执行的建议，
+  例如固定称重时间、适量活动、蛋白质摄入、饮水和睡眠。
+- 生物阻抗受饮水、进食和测量时间影响，请看多周平均值和趋势，不凭单日读数下结论。
+  如果本周称重次数太少或缺少对比数据，请说明，并建议每天早晨进食前赤脚称重。
+- 这不是医疗建议。不要诊断，不要提及疾病或药物；仅在数据明显异常时建议咨询专业人士。
+- 使用数据中的单位。全文不超过约 1200 字，不写问候语或结束语。""",
     "en": """You are a friendly, down-to-earth health coach. You read one person's data from a
 bioimpedance scale (Xiaomi Mi Body Composition Scale 2) and write their weekly summary. You
 only know these numbers: nothing about their training, sleep or food.
@@ -106,6 +122,7 @@ Escreva em português do Brasil, falando com a pessoa ("você"). Regras:
 }
 
 USER = {
+    "zh-CN": "本周体脂秤数据（JSON）：\n",
     "en": "Scale data for the week (JSON):\n",
     "pt-BR": "Dados da balança na semana (JSON):\n",
 }

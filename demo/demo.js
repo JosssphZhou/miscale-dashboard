@@ -11,7 +11,7 @@
 (function () {
   "use strict";
   const { compute } = window.MiscaleBody;
-  const REPO = "https://github.com/BrOrlandi/miscale-dashboard";
+  const REPO = "https://github.com/JosssphZhou/miscale-dashboard";
 
   // ---------- Seed data: two fictional people and ~90 days of weigh-ins, relative to today ----------
   const PEOPLE = [
@@ -118,7 +118,7 @@
   // ---------- Weekly analysis: fixed texts, filled in with the demo's own numbers ----------
   const MODEL = "demo (simulated)";
   const addDays = (day, n) => { const d = new Date(day + "T12:00"); d.setDate(d.getDate() + n); return iso(d).slice(0, 10); };
-  const pageLang = () => (typeof lang !== "undefined" && lang === "pt-BR" ? "pt-BR" : "en");   /* global lang */
+  const pageLang = () => (typeof lang !== "undefined" ? lang : "zh-CN");   /* global lang */
 
   function weekOf(pid, end) {   // weigh-ins in the 7 days that end on `end` (YYYY-MM-DD)
     const start = addDays(end, -6);
@@ -135,6 +135,33 @@
   }
 
   const TEXTS = {
+    "zh-CN": {
+      first: (s) => `${s.name}，这是第一周的数据，可以作为后续对比的起点：平均体重 ${s.w}${s.f ? `，体脂率 ${s.f}` : ""}。`,
+      down: (s) => `${s.name}，本周平均体重 ${s.w}，比上周减少 ${s.dw}`,
+      up: (s) => `${s.name}，本周平均体重 ${s.w}，比上周增加 ${s.dw}`,
+      flat: (s) => `${s.name}，本周平均体重 ${s.w}，与上周基本持平`,
+      fatDown: (s) => `，体脂率从 ${s.pf} 降至 ${s.f}。`, fatUp: (s) => `，体脂率从 ${s.pf} 升至 ${s.f}。`,
+      fatFlat: (s) => `，体脂率稳定在 ${s.f}。`, noFat: () => "。",
+      monthDown: (s) => ` 过去四周体重减少 ${s.d4}。`,
+      monthUp: (s) => ` 过去四周体重增加 ${s.d4}。`, monthFlat: () => " 过去四周体重基本稳定。",
+      improved: "有所改善", attention: "需要留意", next: "下周建议",
+      iWeight: (s) => `平均体重比上周减少 ${s.dw}。`,
+      iFat: (s) => `体脂率下降 ${s.df} 个百分点${s.fm ? `，脂肪量为 ${s.fm}` : ""}。`,
+      iMuscle: (s) => `肌肉量维持在 ${s.m}，本周体重下降主要来自脂肪。`,
+      iMuscleUp: (s) => `肌肉量增加 ${s.dm}，达到 ${s.m}。`,
+      iRoutine: (s) => `本周称重 ${s.n} 次，平均值有更多数据可供参考。`,
+      iKeep: () => "持续称重，便于观察趋势。",
+      aSwing: (s) => `每日体重最多波动 ${s.swing}。饮水和进食可能影响读数，请以每周平均值为参考。`,
+      aWeight: (s) => `本周体重增加 ${s.dw}。一周的数据还不足以判断趋势，请继续观察。`,
+      aFat: (s) => `体脂率比上周增加 ${s.df} 个百分点。`,
+      aMuscle: (s) => `肌肉量减少 ${s.dm}，可以留意蛋白质摄入和力量训练。`,
+      aFew: (s) => `本周只有 ${s.n} 次称重，平均值仅供参考。`,
+      aVisceral: (s) => `内脏脂肪读数为 ${s.v}，请结合后续几周的数据观察。`,
+      aNone: () => "没有明显变化，请保持规律测量。",
+      nWeigh: "每天早晨进食前赤脚称重，保持测量条件一致。",
+      nProtein: "注意每餐的蛋白质摄入，适量进行力量训练。",
+      nSleep: "保持规律睡眠和饮水，有助于减少读数波动。",
+    },
     en: {
       first: (s) => `${s.name}, this is the first week with data, so take these numbers as your starting point: ${s.w} on average${s.f ? `, with body fat at ${s.f}` : ""}.`,
       down: (s) => `${s.name}, your weight averaged ${s.w} this week, ${s.dw} less than the week before`,
@@ -194,7 +221,7 @@
   // The analysis of the 7 days ending on `end`, in plain text like the server's model writes it.
   function writeAnalysis(pid, end, language) {
     const T = TEXTS[language] || TEXTS.en;
-    const loc = language === "pt-BR" ? "pt-BR" : "en-US", lb = db.settings.unit === "lb";
+    const loc = language === "en" ? "en-US" : language, lb = db.settings.unit === "lb";
     const num = (v, d = 1) => Math.abs(v).toLocaleString(loc, { minimumFractionDigits: d, maximumFractionDigits: d });
     const kg = (v, d = 1) => `${num(lb ? v / LB : v, d)} ${lb ? "lb" : "kg"}`;
     const w = weekStats(pid, end), prev = weekStats(pid, addDays(end, -7)), month = weekStats(pid, addDays(end, -28));
@@ -241,10 +268,10 @@
   // model's stream does, and the request answers once it is all written.
   let writingFor = null;
   async function writeNow(pid) {
-    if (!profile(pid)) return json({ detail: "profile not found" }, 404);
+    if (!profile(pid)) return json({ detail: pageLang() === "zh-CN" ? "未找到用户档案。" : "profile not found" }, 404);
     const end = iso(new Date()).slice(0, 10);
-    if (!weekOf(pid, end).length) return json({ detail: "no weigh-in in the last 7 days" }, 409);
-    if (writingFor != null) return json({ detail: "an analysis for this profile is already being written" }, 409);
+    if (!weekOf(pid, end).length) return json({ detail: pageLang() === "zh-CN" ? "最近 7 天没有称重记录。" : "no weigh-in in the last 7 days" }, 409);
+    if (writingFor != null) return json({ detail: pageLang() === "zh-CN" ? "正在生成该用户的分析。" : "an analysis for this profile is already being written" }, 409);
     writingFor = pid;
     try {
       const language = pageLang();
@@ -276,7 +303,7 @@
 
   function profileBody(b) {
     if (!b || typeof b.name !== "string" || !b.name.trim() || b.name.length > 60)
-      return [null, json({ detail: [{ loc: ["body", "name"], msg: "Name is required (up to 60 characters)" }] }, 422)];
+      return [null, json({ detail: [{ loc: ["body", "name"], msg: pageLang() === "zh-CN" ? "请填写姓名，最多 60 个字符。" : "Name is required (up to 60 characters)" }] }, 422)];
     return [b, null];
   }
 
@@ -294,7 +321,7 @@
       if (method === "PATCH") {
         if (!row) return notFound();
         const pid = body?.profile_id ?? null;
-        if (pid != null && !profile(pid)) return json({ detail: "profile not found" }, 404);
+        if (pid != null && !profile(pid)) return json({ detail: pageLang() === "zh-CN" ? "未找到用户档案。" : "profile not found" }, 404);
         row.profile_id = pid;
         row.metrics = metricsFor(pid, row.weight_kg, row.impedance, row.measured_at);
         return json(clone(row));
@@ -483,6 +510,12 @@
       demoRepo: "Código-fonte no GitHub",
       playDemo: "▶ Iniciar demo",
       playDemoHint: "Simula uma pesagem do Alex na balança",
+    });
+    Object.assign(STRINGS["zh-CN"], {
+      demoBanner: "演示使用虚构数据，无需体脂秤或服务器。",
+      demoRepo: "在 GitHub 查看源码",
+      playDemo: "▶ 播放演示",
+      playDemoHint: "播放 Alex 从称重到生成分析的完整演示",
     });
     const style = document.createElement("style");
     style.textContent = `

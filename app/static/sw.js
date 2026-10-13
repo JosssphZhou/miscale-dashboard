@@ -1,7 +1,7 @@
 // Service worker: makes the dashboard installable and lets the app shell open offline.
 // Pages and static files are network-first (always fresh when the server is reachable);
 // the API and the WebSocket are never cached.
-const CACHE = "miscale-shell-v1";
+const CACHE = "miscale-shell-v2-zh";
 const SHELL = ["/", "/manifest.webmanifest", "/static/vendor/chart.umd.min.js",
   "/static/icons/icon-192.png", "/static/icons/favicon.png"];
 

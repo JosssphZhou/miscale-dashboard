@@ -24,7 +24,7 @@ DEMO_SCRIPTS = '<script src="demo/body.js"></script>\n<script src="demo/demo.js"
 # (original, replacement): each original must be in index.html, so a change there that the
 # demo doesn't know about stops the build instead of shipping a broken page.
 EDITS = [
-    ("<title>Mi Scale Dashboard</title>", "<title>Mi Scale Dashboard · Demo</title>"),
+    ("<title>Mi Scale 体脂秤看板</title>", "<title>Mi Scale 体脂秤看板：演示</title>"),
     (CHART, CHART.replace('"/static/', '"static/') + "\n" + DEMO_SCRIPTS),
     ('href="/static/', 'href="static/'),
     ('href="/manifest.webmanifest"', 'href="manifest.webmanifest"'),
@@ -44,7 +44,7 @@ def demo_manifest(manifest: dict) -> dict:
     """Paths relative to the manifest, so the demo installs under any base path."""
     return {
         **manifest,
-        "name": manifest["name"] + " (demo)",
+        "name": manifest["name"] + "（演示）",
         "id": "./", "start_url": "./", "scope": "./",
         "icons": [{**i, "src": i["src"].lstrip("/")} for i in manifest["icons"]],
         "screenshots": [{**s, "src": s["src"].lstrip("/")} for s in manifest.get("screenshots", [])],

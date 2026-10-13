@@ -24,7 +24,7 @@ def test_build_demo(tmp_path):
     assert not re.search(r'(src|href)="/', html)
     # ...and every /api call left is a fetch(), which demo.js answers from memory.
     for line in (line for line in html.splitlines() if "/api/" in line):
-        assert re.search(r'fetch\(.*[`"]/api/', line), line
+        assert re.search(r'(?:fetch|apiFetch)\(.*[`"]/api/', line), line
     assert "demoPhotoUrl(p)" in html
     # The page asks for the weekly analysis; the demo answers it and simulates its stream.
     demo_js = (site / "demo" / "demo.js").read_text()

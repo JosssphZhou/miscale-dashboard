@@ -4,18 +4,17 @@ services:
     image: miscale-dashboard:local
     container_name: miscale-dashboard
     restart: unless-stopped
-    # Every setting (timezone, notifications, the optional AI weekly analysis with
-    # MISCALE_AI_API_KEY, MISCALE_AI_BASE_URL, MISCALE_AI_MODEL...) goes in .env; see .env.example.
+    # 时区、通知与可选 AI 分析等配置来自 .env，参考 .env.example。
     env_file:
       - path: .env
         required: false
     ports:
       - "8800:8800"
     volumes:
-      # Database and profile photos.
+      # 数据库与用户照片。
       - ./data:/data
-      # The BLE scanner talks to the host's BlueZ over the system D-Bus.
+      # 蓝牙扫描通过系统 D-Bus 访问主机的 BlueZ。
       - /run/dbus:/run/dbus:ro
     security_opt:
-      # Docker's default AppArmor profile blocks D-Bus ("AccessDenied ... AddMatch").
+      # Docker 默认 AppArmor 规则阻止 D-Bus，需要允许访问。
       - apparmor=unconfined

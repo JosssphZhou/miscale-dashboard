@@ -19,10 +19,22 @@ WEBHOOK = os.environ.get("MISCALE_WEBHOOK_URL", "")
 TELEGRAM_TOKEN = os.environ.get("MISCALE_TELEGRAM_TOKEN", "")
 TELEGRAM_CHAT = os.environ.get("MISCALE_TELEGRAM_CHAT_ID", "")
 PUBLIC_URL = os.environ.get("MISCALE_PUBLIC_URL", "")
-LANG = os.environ.get("MISCALE_LANG", "en")
+LANG = os.environ.get("MISCALE_LANG", "zh-CN")
 LB = 0.45359237
 
 TEXT = {
+    "zh-CN": {
+        "unknown": "⚖️ 未识别用户：{w}\n本次称重未匹配到用户档案，请在历史记录中指定用户。",
+        "since": "较 {when} 变化 {d}", "avg": "7 天平均 {w}",
+        "fat": "体脂率 {fat}%（脂肪量 {mass}），肌肉量 {muscle}",
+        "water": "水分 {water}%，蛋白质 {protein}%，骨量 {bone}",
+        "bmi": "身体质量指数 {bmi}，内脏脂肪 {visceral}，基础代谢 {bmr} kcal",
+        "impedance": "阻抗 {imp} Ω",
+        "no_impedance": "未测得阻抗，请赤脚站上秤，等待测量结束。",
+        "no_height": "请在用户档案中填写身高和出生日期，以查看身体成分。",
+        "date": "%m月%d日 %H:%M",
+        "analysis": "🧠 本周分析：{name}（{start}至{end}）", "day": "%m月%d日",
+    },
     "en": {
         "unknown": "⚖️ {w} without an owner: the weight doesn't match any profile.\nPick who it was in the history.",
         "since": "{d} since {when}", "avg": "7-day average {w}",
@@ -74,7 +86,8 @@ def message(m: dict, profile: dict | None, history: list[dict], unit: str = "kg"
         if PUBLIC_URL:
             lines.append(PUBLIC_URL)
         return "\n".join(lines)
-    lines = [f"⚖️ {profile['name']} · {_mass(m['weight_kg'], unit, 2, lang)}"]
+    separator = "：" if lang.startswith("zh") else " · "
+    lines = [f"⚖️ {profile['name']}{separator}{_mass(m['weight_kg'], unit, 2, lang)}"]
 
     when = datetime.fromisoformat(m["measured_at"])
     prev = next((h for h in history if when - datetime.fromisoformat(h["measured_at"]) > timedelta(minutes=3)), None)
@@ -87,7 +100,7 @@ def message(m: dict, profile: dict | None, history: list[dict], unit: str = "kg"
     if len(week) > 1:
         trend.append(t["avg"].format(w=_mass(sum(week) / len(week), unit, 1, lang)))
     if trend:
-        lines.append(" · ".join(trend))
+        lines.append(("，" if lang.startswith("zh") else " · ").join(trend))
 
     if x.get("body_fat") is not None:
         lines.append(t["fat"].format(fat=_num(x["body_fat"], 1, lang), mass=_mass(x["fat_mass"], unit, 1, lang),

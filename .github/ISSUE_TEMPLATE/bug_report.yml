@@ -1,36 +1,36 @@
-name: Bug report
-description: Something doesn't work as expected
+name: 问题反馈
+description: 功能未按预期运行
 labels: [bug]
 body:
   - type: textarea
     id: what
     attributes:
-      label: What happened?
-      description: What did you expect, and what happened instead?
+      label: 发生了什么？
+      description: 请说明预期结果和实际结果。
     validations:
       required: true
   - type: input
     id: scale
     attributes:
-      label: Scale model
-      placeholder: Mi Body Composition Scale 2 (XMTZC05HM)
+      label: 体脂秤型号
+      placeholder: 小米体脂秤 2（XMTZC05HM）
     validations:
       required: true
   - type: input
     id: host
     attributes:
-      label: Host, OS and Bluetooth adapter
-      placeholder: Raspberry Pi 4, Raspberry Pi OS 12, built-in Bluetooth
+      label: 运行设备、操作系统和蓝牙适配器
+      placeholder: Raspberry Pi 4、Raspberry Pi OS 12、内置蓝牙
     validations:
       required: true
   - type: dropdown
     id: install
     attributes:
-      label: How do you run it?
-      options: [Docker Compose, Python / systemd, Other]
+      label: 使用哪种运行方式？
+      options: [Docker Compose, Python / systemd, 其他]
   - type: textarea
     id: packets
     attributes:
-      label: Packets and logs
-      description: Output of /api/debug/packets right after a weigh-in, and container logs if relevant.
+      label: 数据包与日志
+      description: 请提供称重后立即获取的 /api/debug/packets 输出，必要时附容器日志。
       render: json
